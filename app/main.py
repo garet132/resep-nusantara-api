@@ -4,7 +4,7 @@ from .database import engine, Base
 from .routes import recipes, categories, favorites
 
 # Buat tabel database (hanya pertama kali)
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Resep Nusantara API",

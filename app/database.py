@@ -6,24 +6,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Deteksi environment (apakah di cloud atau lokal)
-IS_CLOUD = os.environ.get('LEAPCELL_ENV') or os.environ.get('RENDER')
+# Ambil URL database dari environment variable
+# Untuk Leapcell, kita akan set ini di dashboard
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if IS_CLOUD:
-    # Di Leapcell/Render, gunakan folder /tmp
-    DB_PATH = '/tmp/resep_nusantara.db'
+# Jika tidak ada, gunakan SQLite untuk development lokal
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./resep_nusantara.db"
+    print("⚠️ Using SQLite (development mode)")
 else:
-    # Di lokal, gunakan folder proyek
-    DB_PATH = './resep_nusantara.db'
+    print(f"✅ Using PostgreSQL: {DATABASE_URL[:30]}...")  # Hanya tampilkan awal untuk keamanan
 
-DATABASE_URL = f"sqlite:///{DB_PATH}"
-
-print(f"📁 Database path: {DB_PATH}")  # Untuk debugging
-
+# Engine untuk PostgreSQL
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    pool_size=5,           # Sesuaikan dengan kebutuhan
+    max_overflow=10,
 )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
